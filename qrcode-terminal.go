@@ -1,8 +1,7 @@
-package main
+package qr
 
 import (
 	"errors"
-	"flag"
 	"fmt"
 	"strings"
 
@@ -29,47 +28,26 @@ const (
 	BrightWhite   = "\033[48;5;7m  \033[0m"
 )
 
-var (
-	frontColor      string
-	backgroundColor string
-	levelString     string
-)
-
-func init() {
-	flag.Usage = printHelp
-	flag.StringVar(&frontColor, "f", "black", "Front color")
-	flag.StringVar(&backgroundColor, "b", "white", "Background color")
-	flag.StringVar(&levelString, "l", "m", "Error correction level")
-}
-
-func main() {
-
-	flag.Parse()
-
-	var front, back, content string
-	var err error
-	var level qrcode.RecoveryLevel
-
-	if front, err = parseColor(frontColor); err != nil {
+func QRCode(content, fcolor, bcolor, lv string) {
+	var (
+		err   error
+		front string
+		back  string
+		level qrcode.RecoveryLevel
+	)
+	if front, err = parseColor(fcolor); err != nil {
 		fmt.Println(err)
-		printHelp()
 		return
 	}
 
-	if back, err = parseColor(backgroundColor); err != nil {
+	if back, err = parseColor(bcolor); err != nil {
 		fmt.Println(err)
-		printHelp()
 		return
 	}
 
-	if level, err = parseLevel(levelString); err != nil {
+	if level, err = parseLevel(lv); err != nil {
 		fmt.Println(err)
-		printHelp()
 		return
-	}
-
-	if content = flag.Arg(0); content == "" {
-		content = "https://github.com/dawndiy/qrcode-terminal"
 	}
 
 	qr, err := qrcode.New(content, level)
@@ -142,16 +120,4 @@ func parseLevel(str string) (level qrcode.RecoveryLevel, err error) {
 	}
 
 	return
-}
-
-func printHelp() {
-
-	helpStr := `QRCode generater terminal edition.
-
-Supported background colors: [black, red, green, yellow, blue, magenta, cyan, white]
-Supported front colors: [black, red, green, yellow, blue, magenta, cyan, white]
-Supported error correction levels: [L, M, Q, H]
-`
-	fmt.Println(helpStr)
-	flag.PrintDefaults()
 }
